@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserve Now</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm bg-dark justify-content-center navbar-dark">
+        <div class="container-fluid">
+            <!-- Links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('restDashboard') }}">Reservations</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('restTable') }}">Table</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('restMenu') }}">Menu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('restReview') }}">Reviews</a>
+                </li>
+                {% if name %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Logged in as: {{ name }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+                {% endif %}
+                {% if data2 %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Assigned Restaurant: {{ data2['r_name'] }}</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    <div class="container-fluid mt-5">
+        <div class="row">
+            <!-- Form -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Menu Entry</h5>
+                        <form action="{{ url_for('insertMenu') }}" method="post">
+                            <div class="mb-3 mt-3">
+                                <label for="rest" class="form-label">Restaurant ID:</label>
+                                <input type="text" class="form-control" id="rest" placeholder="{{ data2['r_name'] }}" value="{{ data1['r_id'] }}" name="rest" readonly>
+                            </div>
+                            <div class="mb-3 mt-3">
+                                <label for="item" class="form-label">Item Name:</label>
+                                <input type="text" class="form-control" id="item" placeholder="Enter item name" name="item" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="des" class="form-label">Description:</label>
+                                <textarea class="form-control" id="des" placeholder="Write about the item" name="des" required></textarea>
+                            </div>
+                            <div class="mb-3 mt-3">
+                                <label for="price" class="form-label">Price:</label>
+                                <input type="text" class="form-control" id="price" placeholder="Enter item price" name="price" required>
+                            </div>
+                            <button type="submit" class="btn btn-dark mt-3">Enter</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Menu</h5>
+                        <table class="table table-responsive">
+                            <!-- Table content -->
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Menu ID</th>
+                                    <th>Item Name</th>
+                                    <th>Description</th>
+                                    <th>Price</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in menu %}
+                                <tr>
+                                    <td>{{ row['menu_id'] }}</td>
+                                    <td>{{ row['item_name'] }}</td>
+                                    <td>{{ row['description'] }}</td>
+                                    <td>{{ row['price'] }}</td>
+                                    <td>
+                                        <a href="/rest_menu_update/{{ row['menu_id'] }}" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#myModaledit{{ row['menu_id'] }}">UPDATE</a>
+                                        <a href="/rest_menu_delete/{{ row['menu_id'] }}" onclick="return confirm('Record will be deleted')" class="btn btn-danger btn-sm">DELETE</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modals -->
+    {% for row in menu %}
+    <div class="modal fade" id="myModaledit{{ row['menu_id'] }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit Menu</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form action="{{ url_for('menuUpdate', id_data=row['menu_id']) }}" method="post">
+                         <div class="mb-3 mt-3">
+                                <label for="rest1" class="form-label">Restaurant ID:</label>
+                                <input type="text" class="form-control" id="rest1" placeholder="{{ row['r_id'] }}" value="{{ row['r_id'] }}" name="rest1" readonly>
+                            </div>
+                            <div class="mb-3 mt-3">
+                                <label for="item1" class="form-label">Item Name:</label>
+                                <input type="text" class="form-control" id="item1" placeholder="{{ row['item_name'] }}" value="{{ row['item_name'] }}" name="item1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="des1" class="form-label">Description:</label>
+                                <textarea class="form-control" id="des1" placeholder="Write about the item" name="des1" required>{{ row['description'] }}</textarea>
+                            </div>
+                            <div class="mb-3 mt-3">
+                                <label for="price1" class="form-label">Price:</label>
+                                <input type="text" class="form-control" id="price1" placeholder="{{ row['price'] }}" value="{{ row['price'] }}" name="price1" required>
+                            </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-dark mt-3">Save</button>
+                            <button type="button" class="btn btn-danger mt-3" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
